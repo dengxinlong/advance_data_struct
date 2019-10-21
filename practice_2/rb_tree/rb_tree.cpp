@@ -20,15 +20,20 @@ operator=(const RB_tree & rhs)       //赋值运算符函数
 }
 
 
-bool  RB_tree::
+pRB_node  RB_tree::
 insert(const ElemType & val)
 {
     pRB_node pnode = new RB_node(val);
     if (!pnode)
-        return false;
-
-    if(search(val))
-        return false;
+        return nullptr;
+    // if (!_root)
+    // {
+    //     _root = pnode;
+    //     return true;
+    // }
+        
+    // if(search(val))
+    //     return false;
     
     pRB_node ptr = _root;
     pRB_node pre = nullptr;
@@ -50,10 +55,11 @@ insert(const ElemType & val)
         else
             pre->_right = pnode;
     }
-
+    else
+        _root = pnode;
     //将树重新修正为一颗红黑树
     insert_fixup(pnode);
-    return true;
+    return pnode;
 }
 
 void RB_tree::
@@ -164,11 +170,10 @@ left_rotate(pRB_node pnode)
 void RB_tree::
 right_rotate(pRB_node pnode)
 {
-    pRB_node ptr = pnode->_right;
-    pnode->_right = ptr->_left;
-    if (ptr->_left)
-        ptr->_left->_parent = pnode;
-
+    pRB_node ptr = pnode->_left;
+    pnode->_left = ptr->_right;
+    if (ptr->_right)
+        ptr->_right->_parent = pnode;
     ptr->_parent = pnode->_parent;
 
     if (pnode->_parent == nullptr)
@@ -177,13 +182,13 @@ right_rotate(pRB_node pnode)
     }
     else
     {
-        if (pnode->_parent->_left == pnode)
-            pnode->_parent->_left = ptr;
-        else
+        if (pnode->_parent->_right == pnode)
             pnode->_parent->_right = ptr;
+        else
+            pnode->_parent->_left = ptr;
     }
 
-    ptr->_left = pnode;
+    ptr->_right = pnode;
     pnode->_parent = ptr;
 }   
 
@@ -193,12 +198,12 @@ del(const ElemType & val)
 {
     pRB_node z, pnode;
     if (z = search(val))   ///////////////////////////////////////////////////////////////////////
-        delete_node(z);
+        return delete_node(z);
     else
         return false;
 }
 
-void RB_tree::
+bool RB_tree::
 delete_node(pRB_node pnode)
 {
     pRB_node child, parent;
@@ -251,7 +256,7 @@ delete_node(pRB_node pnode)
         if (color == BLACK)
             delete_fixup(child, parent);
         delete pnode;
-        return;
+        return true;
     }
 
     //删除结点有一边是null
@@ -278,6 +283,7 @@ delete_node(pRB_node pnode)
     if (color == BLACK)
         delete_fixup(child, parent);
     delete pnode;
+    return true;
 }
 
 void RB_tree::
@@ -369,7 +375,7 @@ pRB_node RB_tree::
 search(const ElemType & val)
 {
     //return find(_root, val);  //递归实现查找操作
-    pRB_node ptr;
+    pRB_node ptr = _root;
     while (ptr)
     {
         if (ptr->_val == val)
@@ -402,7 +408,11 @@ bool RB_tree::
 clear(void)
 {
     if (!_root)
-     destroy(_root);
+    {
+        destroy(_root);
+        _root = nullptr;
+    }
+     
     return true;
 }
 
@@ -415,6 +425,7 @@ destroy(pRB_node pnode)
         destroy(pnode->_left);
     if (pnode->_right)
         destroy(pnode->_right);
+    delete pnode;
 }
 
 
@@ -422,18 +433,21 @@ void RB_tree::
 preorder() const
 {
     pre_order(_root);
+    cout << endl;
 }
 
 void RB_tree::
 inorder() const
 {
-    in_order(_root);   
+    in_order(_root); 
+    cout << endl;  
 }
 
 void RB_tree::
 postorder() const
 {
     post_order(_root);
+    cout << endl;
 }
 
 void RB_tree::
@@ -441,7 +455,7 @@ pre_order(pRB_node pnode) const
 {
     if (pnode)
     {
-        cout << pnode->_val;
+        cout << pnode->_val << " ";
         pre_order(pnode->_left);
         pre_order(pnode->_right);
     }
@@ -456,7 +470,6 @@ in_order(pRB_node pnode) const
         cout << pnode->_val << " ";
         in_order(pnode->_right);
     }
-    cout << endl;
 }
 
 void RB_tree::
@@ -466,11 +479,11 @@ post_order(pRB_node pnode) const
     {
         post_order(pnode->_left);
         post_order(pnode->_right);
-        cout << pnode->_val;
+        cout << pnode->_val << " ";
     }
 }
 
-pRB_node RB_tree::
+pRB_node 
 minimum(pRB_node pnode)  //查找当前树中最小的结点
 {
     if (!pnode)
@@ -482,7 +495,7 @@ minimum(pRB_node pnode)  //查找当前树中最小的结点
     return pnode;
 }
 
-pRB_node RB_tree::
+pRB_node 
 maximum(pRB_node pnode) //查找当前树中最大的结点
 {
     if (!pnode)

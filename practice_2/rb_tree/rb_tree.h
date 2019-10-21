@@ -43,7 +43,7 @@ public:
 
     RB_tree & operator=(const RB_tree & rhs);       //赋值运算符函数
 
-    bool  insert(const ElemType & val);
+    pRB_node  insert(const ElemType & val);
     bool del(const ElemType & val);
     pRB_node search(const ElemType & val);
     bool clear(void);
@@ -52,12 +52,15 @@ public:
     void inorder() const;
     void postorder() const;
 
+    pRB_node get_root(void) const
+    {
+        return _root;
+    }
+
 private:
     bool find(const pRB_node pnode, const ElemType & elem);
 
-    pRB_node minimum(pRB_node pnode);  //查找当前树中最小的结点
-
-    pRB_node maximum(pRB_node pnode); //查找当前树中最大的结点
+    
 
     void insert_fixup(pRB_node pnode); //将树重新修正为一颗红黑树
 
@@ -65,7 +68,7 @@ private:
 
     void right_rotate(pRB_node pnode);
 
-    void delete_node(pRB_node pnode);
+    bool delete_node(pRB_node pnode);
     void delete_fixup(pRB_node child, pRB_node parent);
 
     void destroy(pRB_node pnode);
@@ -77,6 +80,10 @@ private:
 private:
     pRB_node _root;
 };
+
+pRB_node minimum(pRB_node pnode);  //查找当前树中最小的结点
+
+pRB_node maximum(pRB_node pnode); //查找当前树中最大的结点
 
 
 
